@@ -1,0 +1,283 @@
+﻿<Window x:Class="Gambit.Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Gambit.Client"
+        mc:Ignorable="d"
+        Title="Cogs Demo" Height="484" Width="880" MinWidth="880" MinHeight="485" Icon="blue_gear_background@2x.ico">
+    <Grid>
+        <TabControl x:Name="tabControl" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <TabItem Header="Setup">
+                <Grid Background="#FFE5E5E5" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="107"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox 
+                        Grid.Row="0" 
+                        Grid.Column="1" 
+                        x:Name="CheckBoxRememberKeys" 
+                        Checked="EnabledChekedAppKeys" Unchecked="DisabledChekedAppKeys"
+                        VerticalAlignment="Center"
+                        Content="Remember keys. Note: Only use on a secure system. " 
+                        Padding="4,0,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                               Text="Secret Key" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="7"/>
+                    <TextBox x:Name="TextBoxSecretKey" Grid.Row="1" Grid.Column="1"  TextChanged="ChangedSecretKey" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" 
+                               Text="Access Key" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="7"/>
+                    <TextBox x:Name="TextBoxAccessKey" Grid.Row="2" Grid.Column="1" TextChanged="ChangedAccessKey"  />
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Send Event">
+
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="132" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="8*" />
+                        <RowDefinition Height="7*" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox Grid.Row="0"
+                              Header="Event Setup" Grid.ColumnSpan="4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="85"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock 
+                                    Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                    Padding="0,0,3,0"
+                                    Text="Client Salt"  />
+                                <TextBox x:Name="TextBoxClientSaltEvent" Grid.Column="1" Grid.Row="0"/>
+                                <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
+                                           Text="Timestamp" />
+                                <TextBox x:Name="TextBoxCurrentTimestamp" Grid.Column="1" Grid.Row="1" Text="">
+                                    <TextBox.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Get current timestamp" Click="GetchCurrentTimestamp"/>
+                                        </ContextMenu>
+                                    </TextBox.ContextMenu>
+                                </TextBox>
+                                <!--<DatePicker Grid.Column="1" Grid.Row="1"/>-->
+                                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
+                                           Text="Namespace" Margin="0,5" />
+                                <TextBox x:Name="TextBoxNamespace" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2"/>
+                                <TextBlock Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
+                                           Text="Event Name" Margin="0,5" />
+                                <TextBox x:Name="TextBoxEventName" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="95"/>
+                                    <ColumnDefinition Width="*" MinWidth="200"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
+                                           Text="Client Secret"  />
+                                <TextBox x:Name="TextBoxClientSecretEvent" Grid.Column="1" Grid.Row="0"/>
+
+
+
+                                <Button x:Name="ButtonTimestampHelp" 
+                                        Grid.Column="0" Grid.Row="1"
+                                        Click="ShowTimestampHelp"
+                                        Background="Transparent" 
+                                        BorderBrush="Transparent" 
+                                        BorderThickness="0" HorizontalAlignment="Left">
+                                    <Button.Content>
+                                        <Border  CornerRadius="20" HorizontalAlignment="Left" Margin="3,0"
+                                            BorderBrush="Black" BorderThickness="1"  Width="20" Height="20" >
+                                            <TextBlock Text="?" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                                        </Border>
+                                    </Button.Content>
+                                </Button>
+                                <CheckBox 
+                                    Grid.Row="1" 
+                                    Grid.Column="1" 
+                                    x:Name="useCurrentTimestamp" 
+                                    Checked="HandleCheckTimestamp" Unchecked="HandleUncheckedTimestamp"
+                                    VerticalAlignment="Center"
+                                    Content="Use currnet timestamp" 
+                                    Padding="4,0,0,0"/>
+
+                                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
+                                           Text="Debug Directive"/>
+                                <ComboBox x:Name="ComboBoxDebugDirective" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" HorizontalContentAlignment="Right" >
+                                    <ComboBoxItem Content="No debug directive" Tag="0" IsSelected="True" />
+                                    <ComboBoxItem Content="Echo-as-message" Tag="1"/>
+                                </ComboBox>
+                                <Button x:Name="ButtonDebugDirectiveHelp" 
+                                        Grid.Column="2" Grid.Row="2"
+                                        Click="ShowDebugDirectiveHelp"
+                                        Background="Transparent" 
+                                        BorderBrush="Transparent" 
+                                        BorderThickness="0" HorizontalAlignment="Left">
+                                    <Button.Content>
+                                        <Border  CornerRadius="20" HorizontalAlignment="Left" Margin="3,0"
+                                            BorderBrush="Black" BorderThickness="1"  Width="20" Height="20" >
+                                            <TextBlock Text="?" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                                        </Border>
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </GroupBox>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top" 
+                                Grid.ColumnSpan="4">
+                        <Button Content="Populate" 
+                                Width="200" Height="25" 
+                                Click="PopulateSendNamespace"
+                                HorizontalAlignment="Left" Margin="7"/>
+                        <Button x:Name="ButtonPopulateHelp" 
+           Click="ShowPopulateHelp"
+                                        Background="Transparent" 
+                                        BorderBrush="Transparent" 
+                                        BorderThickness="0" HorizontalAlignment="Left">
+                            <Button.Content>
+                                <Border  CornerRadius="20" HorizontalAlignment="Left" Margin="3,0"
+                                            BorderBrush="Black" BorderThickness="1"  Width="20" Height="20" >
+                                    <TextBlock Text="?" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </Border>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+
+                    <ListView Grid.Row="2" 
+                              x:Name="ListViewEvent" 
+                              MinHeight="120" Margin="7,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.ColumnSpan="4">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Attribute Name" Width="200"
+                                                DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="PK (Required)" Width="100"
+                                                DisplayMemberBinding="{Binding CIID}"/>
+                                <GridViewColumn Header="Type" Width="200"
+                                                DisplayMemberBinding="{Binding DataType}"/>
+                                <GridViewColumn Header="Core" Width="100"
+                                                DisplayMemberBinding="{Binding Core}"/>
+                                <GridViewColumn Header="Value" Width="250">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding Value}" Width="Auto" MinWidth="145"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <DockPanel Grid.Row="3" 
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                               Margin="0 7">
+
+                        <Button Content="Send Event"
+                                DockPanel.Dock="Top"
+                            HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                            Click="SendEvent"
+                            Margin="7" Height="25" Padding="15,1"/>
+
+                        <TextBox x:Name="TextBoxEventRaw" 
+                                 Margin="7,0" IsReadOnly="true" 
+                                  HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" 
+                                 VerticalScrollBarVisibility="Auto" 
+                                 MinHeight="80" 
+                                 ScrollViewer.CanContentScroll="True" TextWrapping="Wrap"/>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <!--<TabItem Header="Subscription">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>-->
+            <TabItem Header="Recieved Messages">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45*"/>
+                        <ColumnDefinition Width="388*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="200"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ListView x:Name="messagesView" Grid.Row="0" SelectionChanged="MessageRowSelected" Margin="0,28,0,0" Grid.ColumnSpan="2">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Data Received" Width="160"
+                                                DisplayMemberBinding="{Binding DateReceived}"/>
+                                <GridViewColumn Header="Event Name" Width="200"
+                                                DisplayMemberBinding="{Binding Message.EventName}"/>
+                                <GridViewColumn Header="Namespace" Width="200"
+                                                DisplayMemberBinding="{Binding Message.Namespace}"/>
+                                <GridViewColumn Header="Campaign Name" Width="300"
+                                                DisplayMemberBinding="{Binding Message.CampaignName}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <GridSplitter ResizeDirection="Rows" Width="5" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="1" Margin="340.365,0,430,0"/>
+                    <TextBox Grid.Row="2" x:Name="rawMessageView" Padding="5" IsReadOnly="true" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto"/>
+
+                    <Button x:Name="clearMessages" Content="Clear All" Margin="0,3,0,0" Padding="15,1" HorizontalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Top" Click="clearMessages_Click" Grid.Column="1"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="About">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="200"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Image Grid.Row="0"  Source="pack://application:,,,/Images/logo_only_blue.png" Height="200" Width="200"/>
+                    <StackPanel Grid.Row="1">
+                        <TextBox Text="COGS Test App" 
+                                 HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" BorderThickness="0" />
+                        <TextBox Text="version 1.0.0" Height="30"
+                                 HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="16" BorderThickness="0" />
+                        <TextBox Text="www.cogswell.io" Height="30"
+                                 HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" BorderThickness="0" Foreground="#FF0947CD" />
+                        <TextBox Text="by Aviata" 
+                                 HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" BorderThickness="0" />
+                        <TextBox Text="www.aviatainc.com" 
+                                 HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" BorderThickness="0" />
+                    </StackPanel>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
