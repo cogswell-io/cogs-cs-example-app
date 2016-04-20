@@ -39,8 +39,16 @@
 
             <TabItem Header="Send Event">
 
-                <StackPanel Background="#FFE5E5E5">
-                    <GroupBox Header="Event Setup">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="132" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="8*" />
+                        <RowDefinition Height="7*" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox Grid.Row="0"
+                              Header="Event Setup" Grid.ColumnSpan="4">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="0.5*"/>
@@ -73,11 +81,11 @@
                                 </TextBox>
                                 <!--<DatePicker Grid.Column="1" Grid.Row="1"/>-->
                                 <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
-                                           Text="Namespace" />
-                                <TextBox x:Name="TextBoxNamespace" Grid.Column="1" Grid.Row="2"/>
+                                           Text="Namespace" Margin="0,5" />
+                                <TextBox x:Name="TextBoxNamespace" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2"/>
                                 <TextBlock Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,3,0"
-                                           Text="Event Name" />
-                                <TextBox x:Name="TextBoxEventName" Grid.Column="1" Grid.Row="3"/>
+                                           Text="Event Name" Margin="0,5" />
+                                <TextBox x:Name="TextBoxEventName" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2"/>
                             </Grid>
                             <Grid Grid.Column="1">
                                 <Grid.ColumnDefinitions>
@@ -124,7 +132,6 @@
                                 <ComboBox x:Name="ComboBoxDebugDirective" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" HorizontalContentAlignment="Right" >
                                     <ComboBoxItem Content="No debug directive" Tag="0" IsSelected="True" />
                                     <ComboBoxItem Content="Echo-as-message" Tag="1"/>
-                                    <ComboBoxItem Content="Trigger-all-cammpaigns-no-delays" Tag="2"/>
                                 </ComboBox>
                                 <Button x:Name="ButtonDebugDirectiveHelp" 
                                         Grid.Column="2" Grid.Row="2"
@@ -143,14 +150,16 @@
                         </Grid>
                     </GroupBox>
 
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Grid.Row="1" Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top" 
+                                Grid.ColumnSpan="4">
                         <Button Content="Populate" 
                                 Width="200" Height="25" 
                                 Click="PopulateSendNamespace"
                                 HorizontalAlignment="Left" Margin="7"/>
                         <Button x:Name="ButtonPopulateHelp" 
-                                        Grid.Column="2" Grid.Row="2"
-                                        Click="ShowPopulateHelp"
+           Click="ShowPopulateHelp"
                                         Background="Transparent" 
                                         BorderBrush="Transparent" 
                                         BorderThickness="0" HorizontalAlignment="Left">
@@ -163,8 +172,12 @@
                         </Button>
                     </StackPanel>
 
-                    <ListView x:Name="ListViewEvent" 
-                              Height="120" Margin="7,0">
+                    <ListView Grid.Row="2" 
+                              x:Name="ListViewEvent" 
+                              MinHeight="120" Margin="7,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.ColumnSpan="4">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Attribute Name" Width="200"
@@ -178,40 +191,55 @@
                                 <GridViewColumn Header="Value" Width="250">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBox Text="{Binding Value}" Width="200" />
+                                            <TextBox Text="{Binding Value}" Width="Auto" MinWidth="145"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <StackPanel Orientation="Horizontal" >
+
+                    <DockPanel Grid.Row="3" 
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                               Margin="0 7">
+
                         <Button Content="Send Event"
+                                DockPanel.Dock="Top"
+                            HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
                             Click="SendEvent"
                             Margin="7" Height="25" Padding="15,1"/>
-                    </StackPanel>
-                   
-                    
-                    <TextBox x:Name="TextBoxEventRaw"  Height="100" Margin="7,0"/>
 
-
-                </StackPanel>
+                        <TextBox x:Name="TextBoxEventRaw" 
+                                 Margin="7,0" IsReadOnly="true" 
+                                  HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" 
+                                 VerticalScrollBarVisibility="Auto" 
+                                 MinHeight="80" 
+                                 ScrollViewer.CanContentScroll="True" TextWrapping="Wrap"/>
+                    </DockPanel>
+                </Grid>
             </TabItem>
             <!--<TabItem Header="Subscription">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>-->
             <TabItem Header="Recieved Messages">
                 <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="45*"/>
+                        <ColumnDefinition Width="388*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition MinHeight="200"/>
                         <RowDefinition Height="5"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <ListView x:Name="messagesView" Grid.Row="0" SelectionChanged="MessageRowSelected">
+                    <ListView x:Name="messagesView" Grid.Row="0" SelectionChanged="MessageRowSelected" Margin="0,28,0,0" Grid.ColumnSpan="2">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Data Received" Width="160"
-                                                DisplayMemberBinding="{Binding DateRecieved}"/>
+                                                DisplayMemberBinding="{Binding DateReceived}"/>
                                 <GridViewColumn Header="Event Name" Width="200"
                                                 DisplayMemberBinding="{Binding Message.EventName}"/>
                                 <GridViewColumn Header="Namespace" Width="200"
@@ -221,9 +249,10 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <GridSplitter ResizeDirection="Rows" Width="5" HorizontalAlignment="Stretch" Grid.Row="1"/>
-                    <TextBox Grid.Row="2" x:Name="rawMessageView" Padding="5"/>
+                    <GridSplitter ResizeDirection="Rows" Width="5" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="1" Margin="340.365,0,430,0"/>
+                    <TextBox Grid.Row="2" x:Name="rawMessageView" Padding="5" IsReadOnly="true" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto"/>
 
+                    <Button x:Name="clearMessages" Content="Clear All" Margin="0,3,0,0" Padding="15,1" HorizontalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Top" Click="clearMessages_Click" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="About">
@@ -245,7 +274,7 @@
                         <TextBox Text="www.aviatainc.com" 
                                  HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" BorderThickness="0" />
                     </StackPanel>
-                    
+
                 </Grid>
             </TabItem>
         </TabControl>

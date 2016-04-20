@@ -6,6 +6,9 @@
 	using System.Xml;
 	using SystemConfiguration = System.Configuration.Configuration;
 
+    /// <summary>
+    /// A class for holding the System coniguration
+    /// </summary>
 	public class SystemSettings
     {
         private static SystemConfiguration _common;
@@ -13,6 +16,9 @@
 
         private const string fileName = "keys.config";
 
+        /// <summary>
+        /// Initializes the SystemSettings class
+        /// </summary>
         private static void init()
         {
             //if (root == null) throw new ArgumentException(nameof(root)); //breaks visual studio 2012 -josh
@@ -32,8 +38,11 @@
             _common = ConfigurationManager.OpenMappedMachineConfiguration(fileMap);
         }
 
-        
-
+        /// <summary>
+        /// Returns a setting by its key
+        /// </summary>
+        /// <param name="key">Key to be returned</param>
+        /// <returns>Returns the value or an empty string</returns>
         public static string Load(string key)
         {
             init();
@@ -46,6 +55,12 @@
             return "";
         }
 
+        /// <summary>
+        /// Updates a configuration value with a new value
+        /// </summary>
+        /// <param name="key">Key of the setting to be updated</param>
+        /// <param name="value">The new value that should be set</param>
+        /// <returns>Returns true if the update is successful</returns>
         public static bool Update(string key, string value)
         {
             try
@@ -64,6 +79,10 @@
             }          
         }
 
+        /// <summary>
+        /// Creates a configuration file
+        /// </summary>
+        /// <param name="path">Path to the file that should be created</param>
         private static void CreateConfigFile(string path)
         {
             XmlDocument doc = new XmlDocument();
@@ -97,6 +116,13 @@
             doc.Save(path);
         }
 
+        /// <summary>
+        /// Creates a new XmlNode with key and value
+        /// </summary>
+        /// <param name="doc">The existing document that the key-value pair should be inserted into</param>
+        /// <param name="key">The key for the pair</param>
+        /// <param name="value">The value for the pair</param>
+        /// <returns>An XmlNode</returns>
         private static XmlNode CreateNodeWithKeyAndValueAttributes(XmlDocument doc, string key, string value)
         {
             XmlNode addNode = doc.CreateElement("add");

@@ -8,10 +8,10 @@
     using System.Windows.Controls;
     using Data.Response;
     using GambitCore;
+    using GambitCore.Util;
     using GambitData;
     using GambitSDK;
     using Model;
-    using Newtonsoft.Json;
 
     public partial class MainWindow : Window
     {
@@ -28,7 +28,7 @@
         private EventModel prevEventModel;
 
         public IEnumerable<NamespaceAttribute> Attributes = new List<NamespaceAttribute>();
-        public ObservableCollection<RecievedMessage> Messages = new ObservableCollection<RecievedMessage>();
+        public ObservableCollection<ReceivedMessage> Messages = new ObservableCollection<ReceivedMessage>();
 
         public MainWindow()
         {
@@ -50,8 +50,16 @@
 
             messagesView.ItemsSource = Messages;
 
+            ListViewEvent.SizeChanged += ListView_SizeChanged;
+            messagesView.SizeChanged += ListView_SizeChanged;
         }
 
+
+
+        /// <summary>
+        /// Fetches the current namespace schema. 
+        /// Current namspace is the one that it is entered into the textbox.
+        /// </summary>
         public async void Namespace()
         {
             currentNamespace = TextBoxNamespace.Text;
@@ -71,12 +79,16 @@
             {
                 Attributes = response.Result.Attributes;
                 ListViewEvent.ItemsSource = Attributes;
+                this.LogEventResult(response.RawData);
                 return;
             }
 
             MessageBox.Show(response.Message);
         }
 
+        /// <summary>
+        /// Sends a new event with the values in the text boxes
+        /// </summary>
         public async void Event()
         {
             clientSalt = TextBoxClientSaltEvent.Text;
@@ -84,6 +96,11 @@
             eventName = TextBoxEventName.Text;
             currentTimeStamp = TextBoxCurrentTimestamp.Text;
             currentNamespace = TextBoxNamespace.Text;
+
+            if (useCurrentTimestamp.IsChecked.Value)
+            {
+                currentTimeStamp = ServiceUtil.CurrentDate();
+            }
 
             if (!ValidateEventData())
             {
@@ -97,7 +114,7 @@
 
             if (response.IsSuccess)
             {
-                TextBoxEventRaw.Text = response.RawData;
+                this.LogEventResult(response.RawData);
 
                 if (this.prevEventModel == null || !this.prevEventModel.Equals(currentEvent))
                 {
@@ -112,6 +129,10 @@
             MessageBox.Show(response.Message, "Error");
         }
 
+        /// <summary>
+        /// Prepares the event that should be sent
+        /// </summary>
+        /// <returns></returns>
         private EventModel PrepareEventModel()
         {
             Dictionary<string, object> myAttributes = new Dictionary<string, object>();
@@ -132,7 +153,6 @@
                 Attributes = myAttributes,
                 Namespace = currentNamespace,
                 Timestamp = currentTimeStamp,
-                ForwardAsMessage = true
             };
 
             var selectedDirective = (ComboBoxItem)ComboBoxDebugDirective.SelectedItem;
@@ -146,6 +166,11 @@
             return eventPostBody;
         }
 
+        /// <summary>
+        /// Converts the namespace attribute into accurate type
+        /// </summary>
+        /// <param name="attribute">The namespace attribute to be converted</param>
+        /// <returns>Returnes the value in the correct type</returns>
         private object GetTypeCorrectedValue(NamespaceAttribute attribute)
         {
             if (attribute == null || attribute.DataType == null)
@@ -202,44 +227,68 @@
             return attribute.Value;
         }
 
+        /// <summary>
+        /// Shows a hint about the timestamp field
+        /// </summary>
         private void ShowTimestampHelp(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Must be formated in ISO-8601 fromat:\n YYYY-MM-DDThh:mm:ssTZD\n\n Example: \n 1016-01-07T22:23:24+00:00",
                 "Help");
         }
 
+        /// <summary>
+        /// Shows a hint about the Debug directive field
+        /// </summary>
         private void ShowDebugDirectiveHelp(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Refer to: \n https://aviatainc.atlassian.net/wiki/display/GAM/Debug+Directives \n for info on what each of these does.", "Help");
         }
 
+        /// <summary>
+        /// Shows a hint about the namespace population button
+        /// </summary>
         private void ShowPopulateHelp(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Namespace, as well as secret key and access key from the setup tab are required to use this. \n\nWill populate the below table with your defined schema from the argument namespace. \n\nIf the table is already populated: \n* New attributes not already existing in the table are added as new rows.\n* Attribute rows in the table which do not match the schema are removed.\n* Attribute rows which exist in the table and match existing attributes defined in the schema will be left alone and their values preserved.", "Help");
         }
 
+        /// <summary>
+        /// Gets the formatted timestamp (current time)
+        /// </summary>
         private void GetchCurrentTimestamp(object sender, RoutedEventArgs e)
         {
             TextBoxCurrentTimestamp.Text = DateTime.UtcNow.ToString("s") + "+0000";  //2016-01-15T11:54+0000
         }
 
+        /// <summary>
+        /// In case the user checks the current timestamp checkbox
+        /// </summary>
         private void HandleCheckTimestamp(object sender, RoutedEventArgs e)
         {
             TextBoxCurrentTimestamp.Text = DateTime.UtcNow.ToString("s") + "+0000";  //2016-01-15T11:54+0000
             TextBoxCurrentTimestamp.IsEnabled = false;
         }
 
+        /// <summary>
+        /// In case the user unchecks the current timestamp checkbox
+        /// </summary>
         private void HandleUncheckedTimestamp(object sender, RoutedEventArgs e)
         {
             TextBoxCurrentTimestamp.Text = "";
             TextBoxCurrentTimestamp.IsEnabled = true;
         }
 
+        /// <summary>
+        /// Handles the populate namespace functionality
+        /// </summary>
         private void PopulateSendNamespace(object sender, RoutedEventArgs e)
         {
             Namespace();
         }
 
+        /// <summary>
+        /// Remember the app keys
+        /// </summary>
         private void EnabledChekedAppKeys(object sender, RoutedEventArgs e)
         {
             //save config
@@ -248,6 +297,9 @@
             SystemSettings.Update("accessKey", accessKey);
         }
 
+        /// <summary>
+        /// Don't remember the app keys
+        /// </summary>
         private void DisabledChekedAppKeys(object sender, RoutedEventArgs e)
         {
             //clear config
@@ -256,24 +308,35 @@
             SystemSettings.Update("accessKey", "");
         }
 
+        /// <summary>
+        /// Handles the sending of the events
+        /// </summary>
         private void SendEvent(object sender, RoutedEventArgs e)
         {
             Event();
         }
 
+        /// <summary>
+        /// Executed when the secret key is changed
+        /// </summary>
         private void ChangedSecretKey(object sender, TextChangedEventArgs e)
         {
             secretKey = TextBoxSecretKey.Text;
         }
 
+        /// <summary>
+        /// Executed when the access key is changed
+        /// </summary>
         private void ChangedAccessKey(object sender, TextChangedEventArgs e)
         {
             accessKey = TextBoxAccessKey.Text;
         }
 
+        /// <summary>
+        /// Pushes a new message
+        /// </summary>
         private async void PushAsync()
         {
-
             Dictionary<string, object> myAttributes = new Dictionary<string, object>();
             foreach (var atribute in Attributes)
             {
@@ -296,13 +359,9 @@
             {
                 IGambitSDKService service = new GambitSDKService();
 
-                var action = new Action<MessageResponse>(delegate (MessageResponse message)
+                var action = new Action<MessageResponse>(message =>
                 {
-                    RecievedMessage msg = new RecievedMessage()
-                    {
-                        Message = message,
-                        DateRecieved = DateTime.UtcNow
-                    };
+                    ReceivedMessage msg = new ReceivedMessage(message);
 
                     // Synchronize with the UI thread
                     this.messagesView.Dispatcher.BeginInvoke((Action)(() => this.Messages.Add(msg)));
@@ -314,8 +373,6 @@
                 }
 
                 client = service.PushAsync(pushModel, clientSecret, action);
-
-
             }
             catch (Exception e)
             {
@@ -323,14 +380,60 @@
             }
         }
 
+        /// <summary>
+        /// Executed when the message row is selected (In the Messages tab)
+        /// </summary>
         private void MessageRowSelected(object sender, SelectionChangedEventArgs e)
         {
-            RecievedMessage recievedMessage = (RecievedMessage)messagesView.SelectedItem;
-            rawMessageView.Text = JsonConvert.SerializeObject(recievedMessage.Message, new JsonSerializerSettings()
-            {
-                Formatting = Formatting.Indented
-            });
+            ReceivedMessage receivedMessage = (ReceivedMessage)messagesView.SelectedItem;
+            //rawMessageView.Text = JsonConvert.SerializeObject(
+            //    receivedMessage.Message.JsonData, new JsonSerializerSettings
+            //    {
+            //        Formatting = Formatting.Indented
+            //    });
+
+            rawMessageView.Text = receivedMessage.Message.JsonData.ToString();
             rawMessageView.TextWrapping = TextWrapping.Wrap;
+        }
+
+        /// <summary>
+        /// Event handler for handling the resize of the ListView
+        /// </summary>
+        private void ListView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateColumnsWidth(sender as ListView);
+        }
+
+        /// <summary>
+        /// Updates the columns with on resize
+        /// </summary>
+        /// <param name="listView">List view that should be updated</param>
+        private void UpdateColumnsWidth(ListView listView)
+        {
+            GridView grid = listView.View as GridView;
+
+            double gridWidth = listView.ActualWidth;
+            int colCount = grid.Columns.Count;
+
+            foreach (GridViewColumn col in grid.Columns)
+            {
+                col.Width = gridWidth / colCount;
+            }
+        }
+
+        /// <summary>
+        /// Cleans all messages in the Received Messages tab
+        /// </summary>
+        private void clearMessages_Click(object sender, RoutedEventArgs e)
+        {
+            this.Messages.Clear();
+            messagesView.Items.Refresh();
+        }
+
+        private void LogEventResult(string rawData)
+        {
+            TextBoxEventRaw.AppendText(string.Format("[{0}] {1}{2}", ServiceUtil.CurrentDate(), rawData, Environment.NewLine));
+            TextBoxEventRaw.ScrollToEnd();
         }
 
         /* VALIDATION */
