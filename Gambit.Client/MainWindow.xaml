@@ -75,7 +75,7 @@
                                 <TextBox x:Name="TextBoxCurrentTimestamp" Grid.Column="1" Grid.Row="1" Text="">
                                     <TextBox.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="Get current timestamp" Click="GetchCurrentTimestamp"/>
+                                            <MenuItem Header="Get current timestamp" Click="FetchCurrentTimestamp"/>
                                         </ContextMenu>
                                     </TextBox.ContextMenu>
                                 </TextBox>

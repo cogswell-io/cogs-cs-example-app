@@ -54,8 +54,6 @@
             messagesView.SizeChanged += ListView_SizeChanged;
         }
 
-
-
         /// <summary>
         /// Fetches the current namespace schema. 
         /// Current namspace is the one that it is entered into the textbox.
@@ -203,7 +201,6 @@
                 {
                     return null;
                 }
-
             }
 
             //Number
@@ -255,7 +252,7 @@
         /// <summary>
         /// Gets the formatted timestamp (current time)
         /// </summary>
-        private void GetchCurrentTimestamp(object sender, RoutedEventArgs e)
+        private void FetchCurrentTimestamp(object sender, RoutedEventArgs e)
         {
             TextBoxCurrentTimestamp.Text = DateTime.UtcNow.ToString("s") + "+0000";  //2016-01-15T11:54+0000
         }

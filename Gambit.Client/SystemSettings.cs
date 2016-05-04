@@ -22,9 +22,15 @@
         private static void init()
         {
             //if (root == null) throw new ArgumentException(nameof(root)); //breaks visual studio 2012 -josh
-            if (root == null) throw new ArgumentException("root.ToString"); //works in vs2012 -josh
+            if (root == null)
+            {
+                throw new ArgumentException("root.ToString"); //works in vs2012 -josh
+            }
 
-            if (_common != null) return;
+            if (_common != null)
+            {
+                return;
+            }
 
             string path = Path.Combine(root, fileName);
 
@@ -52,6 +58,7 @@
                 //return _common.AppSettings.Settings[key]?.Value ?? ""; //breaks visual studio 2012 -josh
                 return _common.AppSettings.Settings[key].Value ?? ""; //works in vs2012 -josh
             }
+
             return "";
         }
 
@@ -71,6 +78,7 @@
                     _common.AppSettings.Settings[key].Value = value;
                     _common.Save();
                 }
+
                 return true;
             }
             catch (Exception)
