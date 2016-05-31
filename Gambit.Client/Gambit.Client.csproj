@@ -52,16 +52,16 @@
     <ApplicationIcon>blue_gear_background%402x.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gambit.Core, Version=1.0.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Gambit.SDK.1.2.0.0\lib\net45\Gambit.Core.dll</HintPath>
+    <Reference Include="Gambit.Core, Version=1.0.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gambit.SDK.1.3.3.0\lib\net45\Gambit.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Gambit.Data, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Gambit.SDK.1.2.0.0\lib\net45\Gambit.Data.dll</HintPath>
+    <Reference Include="Gambit.Data, Version=1.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gambit.SDK.1.3.3.0\lib\net45\Gambit.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Gambit.SDK, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Gambit.SDK.1.2.0.0\lib\net45\Gambit.SDK.dll</HintPath>
+    <Reference Include="Gambit.SDK, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Gambit.SDK.1.3.3.0\lib\net45\Gambit.SDK.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

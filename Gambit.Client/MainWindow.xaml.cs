@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
     using Data.Response;
@@ -15,8 +16,6 @@
 
     public partial class MainWindow : Window
     {
-        private static SocketClient client;
-
         private string accessKey;
         private string secretKey;
         private string clientSalt;
@@ -25,7 +24,8 @@
         private string currentTimeStamp;
         private string eventName;
 
-        private EventModel prevEventModel;
+        private IGambitSDKService service;
+        private IEventModel prevEventModel;
 
         public IEnumerable<NamespaceAttribute> Attributes = new List<NamespaceAttribute>();
         public ObservableCollection<ReceivedMessage> Messages = new ObservableCollection<ReceivedMessage>();
@@ -52,6 +52,8 @@
 
             ListViewEvent.SizeChanged += ListView_SizeChanged;
             messagesView.SizeChanged += ListView_SizeChanged;
+
+            service = new GambitSDKService();
         }
 
         /// <summary>
@@ -68,8 +70,6 @@
             };
 
             SystemSettings.Update("namespace", currentNamespace);
-
-            IGambitSDKService service = new GambitSDKService();
 
             Response<NamespaceResponse> response = await service.NamespaceAsync(currentNamespace, accessKey, secretKey);
 
@@ -105,50 +105,58 @@
                 return;
             }
 
-            EventModel currentEvent = PrepareEventModel();
+            IEventModel currentEvent = PrepareEventModel();
+            bool shouldPush = this.prevEventModel == null || !this.prevEventModel.Equals(currentEvent);
+            if (shouldPush)
+            {
+                await service.EndPushAsync();
+            }
 
-            IGambitSDKService service = new GambitSDKService();
             var response = await service.EventAsync(currentEvent, clientSecret);
 
             if (response.IsSuccess)
             {
                 this.LogEventResult(response.RawData);
 
-                if (this.prevEventModel == null || !this.prevEventModel.Equals(currentEvent))
+                if (shouldPush)
                 {
-                    PushAsync();
+                    await PushAsync();
                 }
-
-                prevEventModel = currentEvent;
-                return;
+            }
+            else
+            {
+                MessageBox.Show(response.Message, "Error");
             }
 
             prevEventModel = currentEvent;
-            MessageBox.Show(response.Message, "Error");
         }
 
         /// <summary>
         /// Prepares the event that should be sent
         /// </summary>
-        /// <returns></returns>
-        private EventModel PrepareEventModel()
+        /// <returns>The prepared event</returns>
+        private IEventModel PrepareEventModel()
         {
-            Dictionary<string, object> myAttributes = new Dictionary<string, object>();
+            var typeCorrectedAttributes = new Dictionary<string, object>();
+            var pkAttributes = new Dictionary<string, object>();
             foreach (var attribute in Attributes)
             {
                 var typeCorrectedValue = GetTypeCorrectedValue(attribute);
                 if (typeCorrectedValue != null)
                 {
-                    myAttributes.Add(attribute.Name, typeCorrectedValue);
+                    typeCorrectedAttributes.Add(attribute.Name, typeCorrectedValue);
+                }
+                if (attribute.CIID)
+                {
+                    pkAttributes.Add(attribute.Name, typeCorrectedValue);
                 }
             }
 
-            EventModel eventPostBody = new EventModel
+            var eventPostBody = new EventModel(typeCorrectedAttributes, pkAttributes)
             {
                 ClientSalt = clientSalt,
                 AccessKey = accessKey,
                 EventName = eventName,
-                Attributes = myAttributes,
                 Namespace = currentNamespace,
                 Timestamp = currentTimeStamp,
             };
@@ -332,15 +340,15 @@
         /// <summary>
         /// Pushes a new message
         /// </summary>
-        private async void PushAsync()
+        private async Task PushAsync()
         {
             Dictionary<string, object> myAttributes = new Dictionary<string, object>();
-            foreach (var atribute in Attributes)
+            foreach (var attribute in Attributes)
             {
-                var typeCorrectedValue = GetTypeCorrectedValue(atribute);
+                var typeCorrectedValue = GetTypeCorrectedValue(attribute);
                 if (typeCorrectedValue != null)
                 {
-                    myAttributes.Add(atribute.Name, typeCorrectedValue);
+                    myAttributes.Add(attribute.Name, typeCorrectedValue);
                 }
             }
 
@@ -354,8 +362,6 @@
 
             try
             {
-                IGambitSDKService service = new GambitSDKService();
-
                 var action = new Action<MessageResponse>(message =>
                 {
                     ReceivedMessage msg = new ReceivedMessage(message);
@@ -364,12 +370,7 @@
                     this.messagesView.Dispatcher.BeginInvoke((Action)(() => this.Messages.Add(msg)));
                 });
 
-                if (client != null)
-                {
-                    await client.Stop();
-                }
-
-                client = service.PushAsync(pushModel, clientSecret, action);
+                await service.PushAsync(pushModel, clientSecret, action);
             }
             catch (Exception e)
             {
@@ -382,12 +383,12 @@
         /// </summary>
         private void MessageRowSelected(object sender, SelectionChangedEventArgs e)
         {
-            ReceivedMessage receivedMessage = (ReceivedMessage)messagesView.SelectedItem;
-            //rawMessageView.Text = JsonConvert.SerializeObject(
-            //    receivedMessage.Message.JsonData, new JsonSerializerSettings
-            //    {
-            //        Formatting = Formatting.Indented
-            //    });
+            var receivedMessage = messagesView.SelectedItem as ReceivedMessage;
+            if (receivedMessage == null)
+            {
+                rawMessageView.Text = string.Empty;
+                return;
+            }
 
             rawMessageView.Text = receivedMessage.Message.JsonData.ToString();
             rawMessageView.TextWrapping = TextWrapping.Wrap;
