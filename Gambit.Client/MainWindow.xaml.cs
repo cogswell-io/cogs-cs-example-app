@@ -463,7 +463,7 @@
         {
             if (string.IsNullOrWhiteSpace(fieldValue))
             {
-                MessageBox.Show($"{fieldName} cannot be null or empty", "Error");
+                MessageBox.Show("{fieldName} cannot be null or empty", "Error");
                 return false;
             }
 

@@ -27,11 +27,11 @@
         /// <summary>
         /// Gets or sets the creation date of the object (the time the message is received)
         /// </summary>
-        public DateTime DateReceived { get; }
+        public DateTime DateReceived { get; set; }
 
         /// <summary>
         /// Gets or sets the actual message response
         /// </summary>
-        public MessageResponse Message { get; }
+        public MessageResponse Message { get; set; }
     }
 }
